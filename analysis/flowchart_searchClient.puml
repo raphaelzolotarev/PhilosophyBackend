@@ -1,0 +1,16 @@
+@startuml
+
+start
+
+:user inputs the name of the user;
+:system retrieves user by NAME;
+
+if (is the user found) then (yes)
+    :return the found user;
+    end;
+
+else (no)
+    :return null;
+    end;
+
+@enduml

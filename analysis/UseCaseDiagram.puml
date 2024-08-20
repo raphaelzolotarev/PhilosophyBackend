@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+
+rectangle Subscription {
+(create account) as createAccount
+(edit infos) as editInfo
+(delete account) as deleteAccount
+}
+
+rectangle User {
+(add user) as addClient
+(remove user) as removeClient
+(find user) as findClient
+(ban user) as banClient
+}
+
+user --> createAccount
+user --> editInfo
+user --> deleteAccount
+
+admin --> addClient
+admin --> removeClient
+admin --> findClient
+admin --> banClient
+
+@enduml

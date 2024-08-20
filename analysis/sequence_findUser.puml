@@ -1,0 +1,19 @@
+@startuml
+
+User -> App : inputs NAME
+alt NAME
+App -> UserService : findUser(String: name)
+UserService -> UserRepository : getUser(String: name)
+end
+
+alt User found
+UserService <- UserRepository : return User user
+App <-- UserService : void()
+User <-- App : show the found user
+else User not found
+UserService <- UserRepository : return null
+App <-- UserService : UserNotFoundException
+User <-- App : error msg: user not found
+end
+
+@enduml
