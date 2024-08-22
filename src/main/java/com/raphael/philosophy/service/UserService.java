@@ -31,21 +31,11 @@ public class UserService {
         return repo.save(user);
     }
 
-    public Optional<User> updateUser(Short id, User user) {
-        if (repo.existsById(id)) {
-            user.setId(id);
-            return Optional.of(repo.save(user));
-        } else {
-            return Optional.empty();
-        }
+    public User updateUser(User user) {
+        return repo.save(user);
     }
 
-    public boolean deleteUser(Short id) {
-        if (repo.existsById(id)) {
-            repo.deleteById(id);
-            return true;
-        } else {
-            return false;
-        }
+    public void deleteUser(Short id) {
+        repo.deleteById(id);
     }
 }

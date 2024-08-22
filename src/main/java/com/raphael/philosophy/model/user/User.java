@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -17,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Table(name = "users")
-public class User extends Audit {
+public class User extends Audit implements Serializable {
 
     //NOT NULL INFOS
     @Id
