@@ -3,6 +3,8 @@ package com.raphael.philosophy.service;
 import com.raphael.philosophy.model.user.User;
 import com.raphael.philosophy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +15,9 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository repo;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     public List<User> getAllUsers() {
         return repo.findAll();
     }
@@ -22,6 +27,7 @@ public class UserService {
     }
 
     public User createUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return repo.save(user);
     }
 

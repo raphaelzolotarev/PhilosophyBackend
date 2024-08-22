@@ -4,7 +4,6 @@ import com.raphael.philosophy.model.Audit;
 import com.raphael.philosophy.model.Configurator;
 import com.raphael.philosophy.model.user.enums.PreferredLanguage;
 import com.raphael.philosophy.model.user.enums.Privacy;
-import com.raphael.philosophy.model.user.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -55,25 +54,19 @@ public class User extends Audit {
     private boolean onlineStatus;
 
     //SETTINGS
-    private Role role = Role.SUBSCRIBER;
-    private Privacy whoCanMessageMe;
-    private Privacy whoCanSeeMyInfos;
-    private PreferredLanguage preferredLanguage;
+    private String role = "USER";
+    @Enumerated(EnumType.STRING)
+    private Privacy whoCanMessageMe = Privacy.EVERYONE;
+    @Enumerated(EnumType.STRING)
+    private Privacy whoCanSeeMyInfos = Privacy.EVERYONE;
+    @Enumerated(EnumType.STRING)
+    private PreferredLanguage preferredLanguage = PreferredLanguage.EN;
 
     //FRIENDS
-    @ManyToMany
-    @JoinTable(
-            name = "followers",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "follower_id")
-    )
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<User> followers;
-    @ManyToMany
-    @JoinTable(
-            name = "followingList",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "following_id")
-    )
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<User> followingList;
 
     public User(String username, String email, String password, String firstName, String lastName, Character gender, Byte age) {
