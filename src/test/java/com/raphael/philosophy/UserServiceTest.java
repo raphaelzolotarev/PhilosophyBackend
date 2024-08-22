@@ -71,7 +71,7 @@ public class UserServiceTest {
         verify(userRepository, times(1)).save(user);
     }
 
-
+//
     @Test
     public void testDeleteUser() {
         when(userRepository.existsById((short) 1)).thenReturn(true);
