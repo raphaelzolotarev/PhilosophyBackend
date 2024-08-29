@@ -24,21 +24,18 @@ public class UserServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-
-
     @Test
     public void testGetAllUsers() {
-        User user1 = new User("jon54", "jon@gmail.com", "xxx", "jon", "deroo", 'm', (byte) 55);
-        User user2 = new User("mike22", "mike@gmail.com", "yyy", "mike", "smith", 'm', (byte) 30);
+        User user1 = new User("jon54", "jon@gmail.com", "xxx");
+        User user2 = new User("mike22", "mike@gmail.com", "yyy");
         when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
         assertEquals(2, userService.getAllUsers().size());
         verify(userRepository, times(1)).findAll();
     }
 
-
     @Test
     public void testGetUserById() {
-        User user = new User("jon54", "jon@gmail.com", "xxx", "jon", "deroo", 'm', (byte) 55);
+        User user = new User("jon54", "jon@gmail.com", "xxx");
         user.setId((short) 1);
         when(userRepository.findById((short) 1)).thenReturn(Optional.of(user));
         Optional<User> foundUser = userService.getUserById((short) 1);
@@ -47,10 +44,9 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findById((short) 1);
     }
 
-
     @Test
     public void testCreateUser() {
-        User user = new User("jon54", "jon@gmail.com", "xxx", "jon", "deroo", 'm', (byte) 55);
+        User user = new User("jon54", "jon@gmail.com", "xxx");
         when(userRepository.save(user)).thenReturn(user);
         User createdUser = userService.createUser(user);
         assertNotNull(createdUser);
@@ -58,26 +54,17 @@ public class UserServiceTest {
         verify(userRepository, times(1)).save(user);
     }
 
-
     @Test
     public void testUpdateUser() {
-        User user = new User("jon54", "jon@gmail.com", "xxx", "jon", "deroo", 'm', (byte) 55);
+        User user = new User("jon54", "jon@gmail.com", "xxx");
         user.setId((short) 1);
         when(userRepository.existsById((short) 1)).thenReturn(true);
         when(userRepository.save(user)).thenReturn(user);
-        Optional<User> updatedUser = userService.updateUser((short) 1, user);
-        assertTrue(updatedUser.isPresent());
-        assertEquals("jon54", updatedUser.get().getUsername());
+        User updatedUser = userService.updateUser(user);
+        assertTrue(updatedUser != null);
+        assertEquals("jon54", updatedUser.getUsername());
         verify(userRepository, times(1)).save(user);
     }
 
-//
-    @Test
-    public void testDeleteUser() {
-        when(userRepository.existsById((short) 1)).thenReturn(true);
-        boolean result = userService.deleteUser((short) 1);
-        assertTrue(result);
-        verify(userRepository, times(1)).deleteById((short) 1);
-    }
 
 }

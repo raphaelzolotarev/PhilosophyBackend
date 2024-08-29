@@ -20,6 +20,34 @@ import java.util.List;
 @Table(name = "users")
 public class User extends Audit implements Serializable {
 
+    //NON NULL INFOS
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Short id;
+    @NotNull
+    private String username;
+    @NotNull
+    private String email;
+    @NotNull
+    private String password;
+
+    //PHOTO
+    private String profilePhoto = Configurator.DEFAULT_IMG_URL;
+
+    //ROLE
+    private String role = "USER";
+
+    //LANG
+    @Enumerated(EnumType.STRING)
+    private PreferredLanguage preferredLanguage = PreferredLanguage.EN;
+
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+}
+/*
     //NOT NULL INFOS
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -79,4 +107,4 @@ public class User extends Audit implements Serializable {
         this.gender = gender;
         this.age = age;
     }
-}
+}*/
