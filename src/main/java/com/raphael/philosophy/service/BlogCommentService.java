@@ -1,45 +1,47 @@
 package com.raphael.philosophy.service;
 
 import com.raphael.philosophy.model.blog.BlogComment;
+import com.raphael.philosophy.model.blog.Post;
+import com.raphael.philosophy.model.user.User;
 import com.raphael.philosophy.repository.BlogCommentRepository;
+import com.raphael.philosophy.repository.PostRepository;
+import com.raphael.philosophy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class BlogCommentService {
-    private final BlogCommentRepository repo;
+    @Autowired
+    private BlogCommentRepository blogCommentRepository;
 
-    public List<BlogComment> getAllBlogComments() {
-        return repo.findAll();
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PostRepository postRepository;
+
+    public BlogComment addComment(Short userId, Short postId, String text) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+        BlogComment blogComment = new BlogComment();
+        blogComment.setUser(user);
+        blogComment.setPost(post);
+        blogComment.setText(text);
+        return blogCommentRepository.save(blogComment);
+    }
+    public void removeComment(Integer commentId) {
+        blogCommentRepository.deleteById(commentId);
     }
 
-    public Optional<BlogComment> getBlogCommentById(Short id) {
-        return repo.findById(id);
+    public List<BlogComment> getCommentsByPostId(Short postId) {
+        return blogCommentRepository.findByPostId(postId);
     }
 
-    public BlogComment createBlogComment(BlogComment blogComment) {
-        return repo.save(blogComment);
-    }
-
-    public Optional<BlogComment> updateBlogComment(Short id, BlogComment blogComment) {
-        if (repo.existsById(id)) {
-            blogComment.setId(id);
-            return Optional.of(repo.save(blogComment));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public boolean deleteBlogComment(Short id) {
-        if (repo.existsById(id)) {
-            repo.deleteById(id);
-            return true;
-        } else {
-            return false;
-        }
+    public List<BlogComment> getCommentsByUserId(Short userId) {
+        return blogCommentRepository.findByUserId(userId);
     }
 }

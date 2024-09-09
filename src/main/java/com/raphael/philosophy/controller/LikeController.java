@@ -2,34 +2,33 @@ package com.raphael.philosophy.controller;
 
 import com.raphael.philosophy.model.blog.Like;
 import com.raphael.philosophy.service.LikeService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/likes")
-@RequiredArgsConstructor
 public class LikeController {
-    private final LikeService service;
 
-    @GetMapping
-    public List<Like> getAllLikes() {
-        return service.getAllLikes();
+    @Autowired
+    private LikeService likeService;
+
+    // GET LIKES BY POST ID
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<List<Like>> getLikesByPostId(@PathVariable Short postId) {
+        List<Like> likes = likeService.getLikesByPostId(postId);
+        return ResponseEntity.ok(likes);
     }
 
-    @PostMapping
-    public Like addLike(@RequestBody Like like) {
-        return service.addLike(like);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLike(@PathVariable Integer id) {
-        if (service.deleteLike(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    // GET LIKES BY USER ID
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Like>> getLikesByUserId(@PathVariable Short userId) {
+        List<Like> likes = likeService.getLikesByUserId(userId);
+        return ResponseEntity.ok(likes);
     }
 }

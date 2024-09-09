@@ -3,6 +3,9 @@ package com.raphael.philosophy.controller;
 import com.raphael.philosophy.model.user.User;
 import com.raphael.philosophy.service.JWTService;
 import com.raphael.philosophy.service.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +15,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.crypto.SecretKey;
+import java.security.SignatureException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
@@ -46,7 +50,10 @@ public class UserController {
     @PostMapping("/add")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         User newUser = service.createUser(user);
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        if(newUser != null)
+            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        else
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping("/search/{keyword}")
@@ -67,61 +74,85 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //check if user is connected
-    @GetMapping("/auth")
-    public ResponseEntity<?> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
-            return new ResponseEntity<>(service.getUserByUsername(authentication.getName()), HttpStatus.OK);
-
-        } else {
-            return new ResponseEntity<>("User is not authenticated", HttpStatus.UNAUTHORIZED);
-        }
-    }
-
-
     //user login
     @PostMapping("/signin")
-    /*public ResponseEntity<User> authenticateUser(@RequestParam String username, @RequestParam String password) {
-        try {
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-            authenticationManager.authenticate(authenticationToken);
-            //SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authenticationManager.authenticate(authenticationToken));
-            return new ResponseEntity<>(service.getUserByUsername(username), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-    }*/
     public ResponseEntity<Map<String, String>> authenticateUser(@RequestParam String username, @RequestParam String password) {
         try {
-            System.out.println("1");
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
 
-            System.out.println("2");
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-            System.out.println("3");
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            System.out.println("4");
-            // Generate JWT token
             String jwtToken = jwtService.generateToken(authentication);
 
-            System.out.println("5");
-            // Create a response map with the token
             Map<String, String> response = new HashMap<>();
 
-            System.out.println("6");
             response.put("token", jwtToken);
+            System.out.println(jwtToken);
 
-            System.out.println("7");
-           // return new ResponseEntity<>(response, HttpStatus.OK); //
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
+    }
+
+
+    @GetMapping("/verify-token")
+    public ResponseEntity<User> verifyToken(@RequestHeader("Authorization") String authorizationHeader) {
+        String username = null;
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+
+            String token = authorizationHeader.substring(7);
+
+            username = jwtService.getUsernameFromToken(token);
+
+            if (username != null && jwtService.validateToken(token)) {
+
+                UserDetails userDetails = jwtService.loadUserByUsername(username);
+
+                return ResponseEntity.ok(service.getUserByUsername(userDetails.getUsername()));
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+
+    //change lang
+    @PostMapping("/changelang")
+    public ResponseEntity<User> changeUserLang(@RequestParam String username, @RequestParam String lang) {
+        System.out.println("controlleur change lang");
+        System.out.println(username);
+        System.out.println(lang);
+        User updatedUser = service.changeUserLang(username, lang);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+
+
+    //follow a user
+    @PostMapping("/{userId}/follow/{targetUserId}")
+    public ResponseEntity<User> followUser(@PathVariable Short userId, @PathVariable Short targetUserId) {
+        User updatedUser = service.followUser(userId, targetUserId);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+    @PostMapping("/{userId}/unfollow/{targetUserId}")
+    public ResponseEntity<User> unFollowUser(@PathVariable Short userId, @PathVariable Short targetUserId) {
+        User updatedUser = service.unFollowUser(userId, targetUserId);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+
+    @GetMapping("/followers/{userId}")
+    public ResponseEntity<List<User>> getFollowers(@PathVariable Short userId) {
+        List<User> followers = service.getUserFollowers(userId);
+        return new ResponseEntity<>(followers, HttpStatus.OK);
+    }
+
+    @GetMapping("/following/{userId}")
+    public ResponseEntity<List<User>> getFollowing(@PathVariable Short userId) {
+        List<User> following = service.getUserFollowing(userId);
+        return new ResponseEntity<>(following, HttpStatus.OK);
     }
 
 

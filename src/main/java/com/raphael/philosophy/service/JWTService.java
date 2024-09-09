@@ -1,56 +1,73 @@
 package com.raphael.philosophy.service;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.Value;
+import com.raphael.philosophy.configuration.CustomUserDetailsService;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 @Service
 public class JWTService {
 
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
-    private String secretKey = "secdf.vfd514fd5v1fdv###€@#{[ret";
+    // Generate a secure key for HS256
+    private SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     private long jwtExpirationInMs = 86400000;
+    private static final Logger logger = LoggerFactory.getLogger(JWTService.class);
 
     public String generateToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
-
-        // Log username
-        System.out.println("Generating token for user: " + userPrincipal.getUsername());
 
         Instant now = Instant.now();
         Instant expiryInstant = now.plus(jwtExpirationInMs, ChronoUnit.MILLIS);
         Date expiryDate = Date.from(expiryInstant);
 
-        // Log expiration time
-        System.out.println("Token expiration date: " + expiryDate);
-
-        SecretKey key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS256.getJcaName());
-
         String token = Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(Date.from(now))
                 .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
-
-        // Log generated token
-        System.out.println("Generated JWT Token: " + token);
 
         return token;
     }
 
+    public String getUsernameFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
 
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException ex) {
+            logger.warn("JWT expired");
+        } catch (Exception ex) {
+            logger.error("Invalid JWT", ex);
+        }
+        return false;
+    }
+
+    public UserDetails loadUserByUsername(String username) {
+        return userDetailsService.loadUserByUsername(username);
+    }
 }
-
