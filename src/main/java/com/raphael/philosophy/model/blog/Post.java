@@ -47,13 +47,5 @@ public class Post extends Audit implements Serializable{
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
-/*
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    //@JsonManagedReference
-    private Set<Like> likes = new HashSet<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    //@JsonManagedReference
-    private Set<BlogComment> comments = new HashSet<>();
-*/
 }

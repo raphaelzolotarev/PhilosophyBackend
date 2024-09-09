@@ -72,13 +72,4 @@ public class User extends Audit implements Serializable {
     @JsonIgnoreProperties({"followers", "following"})
     private List<User> followers = new ArrayList<>();
 
-    /*
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    //@JsonManagedReference
-    private Set<Like> likes = new HashSet<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    //@JsonManagedReference
-    private Set<BlogComment> comments = new HashSet<>();*/
-
 }
