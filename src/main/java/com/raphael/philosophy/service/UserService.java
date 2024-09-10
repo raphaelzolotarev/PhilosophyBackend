@@ -1,5 +1,6 @@
 package com.raphael.philosophy.service;
 
+import com.raphael.philosophy.exceptions.UserNotFoundException;
 import com.raphael.philosophy.model.user.User;
 import com.raphael.philosophy.model.user.enums.PreferredLanguage;
 import com.raphael.philosophy.repository.BlogCommentRepository;
@@ -7,14 +8,10 @@ import com.raphael.philosophy.repository.LikeRepository;
 import com.raphael.philosophy.repository.PostRepository;
 import com.raphael.philosophy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,6 +84,22 @@ public class UserService {
     }
 
     public void deleteUser(Short id) {
+        User userToDelete = repo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        // Remove user from other users' followers lists
+        List<User> followers = userToDelete.getFollowers();
+        for (User follower : followers) {
+            follower.getFollowing().remove(userToDelete);
+            repo.save(follower);
+        }
+
+        // Remove user from other users' following lists
+        List<User> following = userToDelete.getFollowing();
+        for (User followingUser : following) {
+            followingUser.getFollowers().remove(userToDelete);
+            repo.save(followingUser);
+        }
+
         likeRepository.deleteAll(likeRepository.findByUserId(id));
         blogCommentRepository.deleteAll(blogCommentRepository.findByUserId(id));
         postRepository.deleteAll(postRepository.findAllByAuthorId(id));

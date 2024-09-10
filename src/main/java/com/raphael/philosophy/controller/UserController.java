@@ -3,10 +3,6 @@ package com.raphael.philosophy.controller;
 import com.raphael.philosophy.model.user.User;
 import com.raphael.philosophy.service.JWTService;
 import com.raphael.philosophy.service.UserService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,11 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
-
-import javax.crypto.SecretKey;
-import java.security.SignatureException;
 import java.util.*;
 
 @RestController
@@ -29,8 +21,10 @@ import java.util.*;
 public class UserController {
 
     private final UserService service;
+
     @Autowired
     private AuthenticationManager authenticationManager;
+
     @Autowired
     private JWTService jwtService;
 
@@ -89,14 +83,12 @@ public class UserController {
             Map<String, String> response = new HashMap<>();
 
             response.put("token", jwtToken);
-            System.out.println(jwtToken);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
     }
-
 
     @GetMapping("/verify-token")
     public ResponseEntity<User> verifyToken(@RequestHeader("Authorization") String authorizationHeader) {
@@ -119,7 +111,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-
     //change lang
     @PostMapping("/changelang")
     public ResponseEntity<User> changeUserLang(@RequestParam String username, @RequestParam String lang) {
@@ -130,13 +121,13 @@ public class UserController {
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
-
     //follow a user
     @PostMapping("/{userId}/follow/{targetUserId}")
     public ResponseEntity<User> followUser(@PathVariable Short userId, @PathVariable Short targetUserId) {
         User updatedUser = service.followUser(userId, targetUserId);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
+
     @PostMapping("/{userId}/unfollow/{targetUserId}")
     public ResponseEntity<User> unFollowUser(@PathVariable Short userId, @PathVariable Short targetUserId) {
         User updatedUser = service.unFollowUser(userId, targetUserId);
@@ -154,7 +145,4 @@ public class UserController {
         List<User> following = service.getUserFollowing(userId);
         return new ResponseEntity<>(following, HttpStatus.OK);
     }
-
-
-
 }

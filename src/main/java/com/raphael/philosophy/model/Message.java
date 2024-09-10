@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Message extends Audit {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Short id;
@@ -22,4 +23,5 @@ public abstract class Message extends Audit {
     @Lob
     @Column(name = "description", columnDefinition = "LONGTEXT")
     private String text;
+
 }

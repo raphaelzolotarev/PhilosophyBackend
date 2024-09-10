@@ -1,15 +1,11 @@
 package com.raphael.philosophy.service;
 
-import com.raphael.philosophy.model.blog.Like;
 import com.raphael.philosophy.model.blog.Post;
-import com.raphael.philosophy.model.user.User;
 import com.raphael.philosophy.repository.BlogCommentRepository;
 import com.raphael.philosophy.repository.LikeRepository;
 import com.raphael.philosophy.repository.PostRepository;
-import com.raphael.philosophy.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +14,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PostService {
+
     private final PostRepository repo;
     private final LikeRepository likeRepository;
     private final BlogCommentRepository blogCommentRepository;
@@ -31,9 +28,6 @@ public class PostService {
                 .sorted(Comparator.comparing(Post::getId).reversed())
                 .collect(Collectors.toList());
     }
-
-
-
 
     public Optional<Post> getPostById(Short id) {
         return repo.findById(id);

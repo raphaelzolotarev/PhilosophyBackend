@@ -1,24 +1,17 @@
 package com.raphael.philosophy.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.raphael.philosophy.model.Audit;
-import com.raphael.philosophy.model.blog.BlogComment;
-import com.raphael.philosophy.model.blog.Like;
 import com.raphael.philosophy.model.user.enums.Gender;
 import com.raphael.philosophy.model.user.enums.PreferredLanguage;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -71,5 +64,4 @@ public class User extends Audit implements Serializable {
     @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnoreProperties({"followers", "following"})
     private List<User> followers = new ArrayList<>();
-
 }

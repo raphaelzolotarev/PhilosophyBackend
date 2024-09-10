@@ -1,6 +1,5 @@
 package com.raphael.philosophy.controller;
 
-import com.raphael.philosophy.model.blog.Like;
 import com.raphael.philosophy.model.blog.Post;
 import com.raphael.philosophy.service.BlogCommentService;
 import com.raphael.philosophy.service.LikeService;
@@ -10,19 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
+
     @Autowired
     private LikeService likeService;
+
     @Autowired
     private BlogCommentService blogCommentService;
-    private final PostService service;
 
+    private final PostService service;
 
     @GetMapping("/show")
     public ResponseEntity<List<Post>> getAllPosts() {
@@ -105,5 +105,4 @@ public class PostController {
         List<Post> posts = service.getPostsByUserId(userId);
         return ResponseEntity.ok(posts);
     }
-
 }

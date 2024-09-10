@@ -4,7 +4,6 @@ import com.raphael.philosophy.model.user.UserMessage;
 import com.raphael.philosophy.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
